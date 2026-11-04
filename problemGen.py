@@ -1,11 +1,14 @@
 import time
 import sys
+import json
 
-def displayMenu():
+def displayMenu(solved):
     print("+-----------------------------------------------+")
     print("                    Menu")
-    print("+-----------------------------------------------+\n")
-    print("1. Randomly pick a solved Leetcode problem")
+    print("+-----------------------------------------------+")
+    displayList(solved)
+
+    print("\n1. Randomly pick a solved Leetcode problem")
     print("2. Add a Leetcode problem")
     print("3. Remove a Leetcode problem")
     print("4. Display Leetcode problems in progress")
@@ -15,8 +18,11 @@ def displayMenu():
 """
 displayList(): Displays list of previously solved problems
 """
-def displayList():
-    pass
+def displayList(problems):
+
+    print("* Solved Problems *")
+    for num, problem in problems.items():
+        print(f"{num}. {problem}")
 
 """
 pick(): Randomly selects a Leetcode problem from the list of solved problem
@@ -28,14 +34,19 @@ def pick():
 """
 add(): Allows user to add a problem to the list 
 """
-def add():
-    print("Adding a new Leetcode problem...")
-    input("Press Enter to continue...")
+def add(solved):
+    ID = int(input("What is the problem ID?"))
+    problem = input("What is the problem name?")
 
+
+    solved[ID] = problem
+
+    print("Adding new LeetCode problem!")
+    time.sleep(3)
 """
 remove(): Allows user to remove a problem from the list
 """
-def remove():
+def remove(problems):
     print("Removing a Leetcode problem")
     input("Press Enter to continue...")
 
@@ -74,14 +85,20 @@ def exit_program():
 
 def main():
 
+    solved = {
+        217: "Contains Duplicate",
+        242: "Valid Anagram",
+        1: "Two Sum",
+        49: "Group Anagrams"
+    }
+
     while True:
-        displayMenu()
-        displayList()
+        displayMenu(solved)
 
         menu = {
             "1": pick,
-            "2": add,
-            "3": remove,
+            "2": lambda: add(solved),
+            "3": lambda: remove(solved),
             "4": displayWIP,
             "5": updateWIP,
             "6": exit_program,
