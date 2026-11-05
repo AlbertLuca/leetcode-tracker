@@ -40,3 +40,10 @@ The lambda acts as a wrapper takes no argument itself, but calls ```greet(name)`
 ![alt text](image.png)
 
 - JSON Persistence
+How to read and write to a dictionary to a JSON file using
+``` with open(file like object, "r" ) as fp: 
+        json.load(obj, fp)
+    with open(file like object, "w" ) as fp: 
+        json.dump(obj, fp, indent)
+``` 
+Immediately saving to JSON file after modification known as "JSON persistence"

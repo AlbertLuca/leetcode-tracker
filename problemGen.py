@@ -2,6 +2,9 @@ import time
 import sys
 import json
 
+# "dont repeat yourself" (DRY) violation
+TRACKER_FILE = "tracker.json"
+
 def displayMenu(solved):
     print("+-----------------------------------------------+")
     print("                    Menu")
@@ -35,20 +38,58 @@ def pick():
 add(): Allows user to add a problem to the list 
 """
 def add(solved):
-    ID = int(input("What is the problem ID?"))
-    problem = input("What is the problem name?")
+    print(">> ADD")
 
+    # .strip() removes accident leading/trailing spaces
+    ID = input("What is the problem ID? ").strip()
+    problem = input("What is the problem name? ").strip()
 
+    # Prevents empty inputs from ruining tracker file
+    if not ID or not problem:
+        print("Error: ID and problem cannot be empty!")
+        time.sleep(2)
+        return
+
+    # Secure duplicate check (Works great with JSON keys!)
+    if ID in solved:
+        print(f"ID: {ID} Problem: {solved[ID]} already tracker")
+        time.sleep(2)
+        return
+    
     solved[ID] = problem
+    save_problems(solved)
 
-    print("Adding new LeetCode problem!")
-    time.sleep(3)
+    print(f"Adding {problem}!")
+    time.sleep(2)
 """
 remove(): Allows user to remove a problem from the list
 """
-def remove(problems):
-    print("Removing a Leetcode problem")
-    input("Press Enter to continue...")
+def remove(solved):
+    print(">> REMOVE")
+
+    # .strip() removes accident leading/trailing spaces 
+    ID = input("What is the problem ID? ").strip()
+
+    # Prevents empty inputs from ruining tracker file
+    if not ID: 
+        print("Error: ID and problem cannot be empty!")
+        time.sleep(2)
+        return  
+
+    # Safely pop first without printing solved[ID] directly (avoids KeyError)
+    # Use raw object None (no quotes) as fallback safety net
+    removed = solved.pop(ID, None)
+
+    # Correct comparison using the Python keyword 'is None' or '== None'
+    if removed is None:
+        return print(f"{ID} not found!")
+
+    # Safe to print the name since we verified it existed
+    print(f"Removing {removed}")
+
+    # Commit the clean dictionary back to JSON file
+    save_problems(solved)
+    time.sleep(2)
 
 """
 displayWIP() function displays most recently generate leetcode problem, the most recent problem solved that was added to the
@@ -83,14 +124,21 @@ def exit_program():
     time.sleep(3)
     sys.exit(0)
 
+def load_problems():
+    try:
+        with open(TRACKER_FILE, "r") as fp:
+            return json.load(fp)
+    except FileNotFoundError:
+        return {}
+
+def save_problems(solved):
+    with open(TRACKER_FILE, "w") as fp:
+        json.dump(solved, fp, indent= 4)
+
+
 def main():
 
-    solved = {
-        217: "Contains Duplicate",
-        242: "Valid Anagram",
-        1: "Two Sum",
-        49: "Group Anagrams"
-    }
+    solved = load_problems()
 
     while True:
         displayMenu(solved)
