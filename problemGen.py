@@ -1,6 +1,7 @@
 import time
 import sys
 import json
+import random
 
 # "dont repeat yourself" (DRY) violation
 TRACKER_FILE = "tracker.json"
@@ -30,9 +31,22 @@ def displayList(problems):
 """
 pick(): Randomly selects a Leetcode problem from the list of solved problem
 """
-def pick():
-    print("Randomly picking previously solved problem...")
+def pick(solved):
+    print("Randomly picking solved problem...")
     input("Press Enter to continue...")
+
+    if not solved:
+        print("Solved dictionary is empty!")
+        return
+
+
+    problem_ID = random.choice(list(solved.keys()))
+
+    print(f"Picked Problem {problem_ID}: {solved[problem_ID]}")
+
+    time.sleep(2)
+    return
+
 
 """
 add(): Allows user to add a problem to the list 
@@ -175,7 +189,7 @@ def main():
         displayMenu(solved)
 
         menu = {
-            "1": pick,
+            "1": lambda: pick(solved),
             "2": lambda: add(solved),
             "3": lambda: remove(solved),
             "4": displayWIP,
