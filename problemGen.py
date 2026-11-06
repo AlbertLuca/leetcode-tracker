@@ -31,7 +31,7 @@ def displayList(problems):
 """
 pick(): Randomly selects a Leetcode problem from the list of solved problem
 """
-def pick(solved):
+def pick(solved, practice):
     print("Randomly picking solved problem...")
     input("Press Enter to continue...")
 
@@ -44,6 +44,10 @@ def pick(solved):
 
     print(f"Picked Problem {problem_ID}: {solved[problem_ID]}")
 
+    practice["random"] = problem_ID
+
+    save_problems(solved, practice)
+
     time.sleep(2)
     return
 
@@ -51,7 +55,7 @@ def pick(solved):
 """
 add(): Allows user to add a problem to the list 
 """
-def add(solved):
+def add(solved,practice):
     print(">> ADD")
 
     ID = get_problem_id()
@@ -74,14 +78,14 @@ def add(solved):
         return
     
     solved[ID] = problem
-    save_problems(solved)
+    save_problems(solved,practice)
 
     print(f"Adding {problem}!")
     time.sleep(2)
 """
 remove(): Allows user to remove a problem from the list
 """
-def remove(solved):
+def remove(solved, practice):
     print(">> REMOVE")
 
     ID = get_problem_id()
@@ -89,9 +93,18 @@ def remove(solved):
     if ID is None:
         return
 
+
     # Safely pop first without printing solved[ID] directly (avoids KeyError)
     # Use raw object None (no quotes) as fallback safety net
     removed = solved.pop(ID, None)
+
+    # Checks if ID matches practice "random"
+    if ID == practice.get("random"):
+        practice["random"] = None
+
+    # Checks if ID matches practice "repractice"
+    if ID == practice.get("repractice"):
+        practice["repractice"] = None
 
     # Correct comparison using the Python keyword 'is None' or '== None'
     if removed is None:
@@ -101,7 +114,7 @@ def remove(solved):
     print(f"Removing {removed}")
 
     # Commit the clean dictionary back to JSON file
-    save_problems(solved)
+    save_problems(solved, practice)
     time.sleep(2)
 """
 get_problem_id(): Prompts user for problem ID and returns it as an integer. 
@@ -166,32 +179,51 @@ def load_problems():
         with open(TRACKER_FILE, "r") as fp:
             data = json.load(fp)
 
+            practice = data.get("practice", {
+                "random": None,
+                "repractice": None,
+                "current": None
+            })
+
+            solved = data.get("solved", {})
+
             converted = {}
 
-            for ID, problem in data.items():
+            for ID, problem in solved.items():
                 converted[int(ID)] = problem
 
-            return converted
+            return converted, practice
 
     except FileNotFoundError:
-        return {}
+        return {}, {
+            "random": None,
+            "repractice": None,
+            "current": None
+        }
 
-def save_problems(solved):
+def save_problems(solved, practice):
+
+    data = {
+        "solved": solved,
+        "practice": practice
+    }
+
     with open(TRACKER_FILE, "w") as fp:
-        json.dump(solved, fp, indent= 4)
+        json.dump(data, fp, indent= 4)
 
 
 def main():
 
-    solved = load_problems()
+    # tuple unpacking
+    solved, practice = load_problems()
 
     while True:
         displayMenu(solved)
 
         menu = {
-            "1": lambda: pick(solved),
-            "2": lambda: add(solved),
-            "3": lambda: remove(solved),
+            "1": lambda: pick(solved, practice),
+            "2": lambda: add(solved, practice),
+            "3": lambda: remove(solved, practice),
             "4": displayWIP,
             "5": updateWIP,
             "6": exit_program,
