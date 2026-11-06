@@ -40,16 +40,19 @@ add(): Allows user to add a problem to the list
 def add(solved):
     print(">> ADD")
 
-    # .strip() removes accident leading/trailing spaces
-    ID = input("What is the problem ID? ").strip()
+    ID = get_problem_id()
+
+    if ID is None:
+        return
+
     problem = input("What is the problem name? ").strip()
 
     # Prevents empty inputs from ruining tracker file
-    if not ID or not problem:
+    if not problem:
         print("Error: ID and problem cannot be empty!")
         time.sleep(2)
         return
-
+    
     # Secure duplicate check (Works great with JSON keys!)
     if ID in solved:
         print(f"ID: {ID} Problem: {solved[ID]} already tracker")
@@ -67,14 +70,10 @@ remove(): Allows user to remove a problem from the list
 def remove(solved):
     print(">> REMOVE")
 
-    # .strip() removes accident leading/trailing spaces 
-    ID = input("What is the problem ID? ").strip()
+    ID = get_problem_id()
 
-    # Prevents empty inputs from ruining tracker file
-    if not ID: 
-        print("Error: ID and problem cannot be empty!")
-        time.sleep(2)
-        return  
+    if ID is None:
+        return
 
     # Safely pop first without printing solved[ID] directly (avoids KeyError)
     # Use raw object None (no quotes) as fallback safety net
@@ -90,6 +89,29 @@ def remove(solved):
     # Commit the clean dictionary back to JSON file
     save_problems(solved)
     time.sleep(2)
+"""
+get_problem_id(): Prompts user for problem ID and returns it as an integer. 
+If the input is invalid, it returns None.
+Enforce the DRY principle by using this function in both add() and remove() functions
+to avoid code duplication.
+"""
+def get_problem_id():
+
+    try: 
+        ID = int(input("What is the problem ID? ").strip())
+    except ValueError:
+        print("Error: Invalid problem ID!")
+        time.sleep(2)
+        return None
+
+        # Prevent negative problem ID's
+    if ID <= 0:
+        print("Error: Problem ID must be greater than zero!")
+        time.sleep(2)
+        return None
+
+    return ID
+    
 
 """
 displayWIP() function displays most recently generate leetcode problem, the most recent problem solved that was added to the
@@ -125,9 +147,18 @@ def exit_program():
     sys.exit(0)
 
 def load_problems():
+
     try:
         with open(TRACKER_FILE, "r") as fp:
-            return json.load(fp)
+            data = json.load(fp)
+
+            converted = {}
+
+            for ID, problem in data.items():
+                converted[int(ID)] = problem
+
+            return converted
+
     except FileNotFoundError:
         return {}
 
