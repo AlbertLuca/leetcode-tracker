@@ -6,18 +6,20 @@ import random
 # "dont repeat yourself" (DRY) violation
 TRACKER_FILE = "tracker.json"
 
-def displayMenu(solved):
+def displayMenu(solved, practice):
     print("+-----------------------------------------------+")
     print("                    Menu")
     print("+-----------------------------------------------+")
     displayList(solved)
+    displayWIP(solved, practice)
 
     print("\n1. Randomly pick a solved Leetcode problem")
     print("2. Add a Leetcode problem")
     print("3. Remove a Leetcode problem")
-    print("4. Display Leetcode problems in progress")
-    print("5. Update Leetcode currently in progress")
-    print("6. Exit program\n")
+    print("4. Update Leetcode currently in progress")
+    print("5. Exit program\n")
+
+
 
 """
 displayList(): Displays list of previously solved problems
@@ -157,7 +159,7 @@ Currently working on: Top K Frequent Elements
 def displayWIP(solved, practice):
 
 
-    print("Displaying Leetcode problems in progress: ")
+    print("\nLeetcode problems in progress: ")
 
     if not solved:
         print("No problems in solved list!")
@@ -168,22 +170,22 @@ def displayWIP(solved, practice):
 
     repractice_id = list(solved.keys())[-1]
     repractice_problem = list(solved.values())[-1]
+
+    practice["repractice"] = repractice_id
     
     print(f"Repractice: {repractice_id}. {repractice_problem}")
 
-    current_problem_ID = practice.get("current", None)
+    current_problem = practice.get("current", None)
 
-    if current_problem_ID is None:
+    if current_problem is None:
         print("No problem currently in progress, must update by selecting " \
-        "'5. Update Leetcode currently in progress'")
+        "'4. Update Leetcode currently in progress'\n")
         time.sleep(2)
         return
 
-    
+    # Remember that json.load() loads tuples to lists
+    print(f"Current: {current_problem[0]}. {current_problem[1]}\n")
 
-
-
-    input("Press Enter to continue...")
 
 """
 updateWIP(): Allows the user to tell the program that the user completed the current Leetcode problem in progression.
@@ -205,9 +207,13 @@ def updateWIP(solved, practice):
         time.sleep(2)
         return
 
-    
+    practice["current"] = (ID, problem)
 
-    input("Press Enter to continue...")
+    save_problems(solved, practice)
+
+    print(f"Updating {ID}. {problem} to WIP")
+    time.sleep(2)
+    return
 
 """
 def exit_program(): Exits the program
@@ -262,15 +268,14 @@ def main():
     solved, practice = load_problems()
 
     while True:
-        displayMenu(solved)
+        displayMenu(solved, practice)
 
         menu = {
             "1": lambda: pick(solved, practice),
             "2": lambda: add(solved, practice),
             "3": lambda: remove(solved, practice),
-            "4": lambda: displayWIP(solved, practice),
-            "5": lambda: updateWIP(solved, practice),
-            "6": exit_program,
+            "4": lambda: updateWIP(solved, practice),
+            "5": exit_program,
         }
 
         choice = input("Select an option: ")
