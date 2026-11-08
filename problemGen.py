@@ -108,7 +108,9 @@ def remove(solved, practice):
 
     # Correct comparison using the Python keyword 'is None' or '== None'
     if removed is None:
-        return print(f"{ID} not found!")
+        print(f"Problem ID: {ID} not found!")
+        time.sleep(2)
+        return
 
     # Safe to print the name since we verified it existed
     print(f"Removing {removed}")
@@ -152,11 +154,35 @@ Random selected problem: Valid Anagram
 Repractice: Group Anagrams
 Currently working on: Top K Frequent Elements
 """
-def displayWIP():
+def displayWIP(solved, practice):
+
+
     print("Displaying Leetcode problems in progress: ")
-    print("Randomly picked problem: ")
-    print("Practice previously solved problem: ")
-    print("Currently solving: ")
+
+    if not solved:
+        print("No problems in solved list!")
+        time.sleep(2)
+        return
+
+    print(f"Random Selected Problem: {practice["random"]}. {solved[practice["random"]]}")
+
+    repractice_id = list(solved.keys())[-1]
+    repractice_problem = list(solved.values())[-1]
+    
+    print(f"Repractice: {repractice_id}. {repractice_problem}")
+
+    current_problem_ID = practice.get("current", None)
+
+    if current_problem_ID is None:
+        print("No problem currently in progress, must update by selecting " \
+        "'5. Update Leetcode currently in progress'")
+        time.sleep(2)
+        return
+
+    
+
+
+
     input("Press Enter to continue...")
 
 """
@@ -164,10 +190,28 @@ updateWIP(): Allows the user to tell the program that the user completed the cur
 The repractice problem is added to the main list of problems and the current problem is moved to the repractice problem.
 Then the user tells the program which problem they're currently solving.
 """
-def updateWIP():
-    print("What problem are you currently working on?")
-    input("Press Enter to continue...")
+def updateWIP(solved, practice):
+
+    ID = get_problem_id()
+
+    if ID is None:
+            return
     
+    problem = input("What is the problem name? ").strip()
+
+    # Prevents empty inputs from ruining tracker file
+    if not problem:
+        print("Error: ID and problem cannot be empty!")
+        time.sleep(2)
+        return
+
+    
+
+    input("Press Enter to continue...")
+
+"""
+def exit_program(): Exits the program
+"""
 def exit_program():
     print("Exiting program...")
     time.sleep(3)
@@ -224,8 +268,8 @@ def main():
             "1": lambda: pick(solved, practice),
             "2": lambda: add(solved, practice),
             "3": lambda: remove(solved, practice),
-            "4": displayWIP,
-            "5": updateWIP,
+            "4": lambda: displayWIP(solved, practice),
+            "5": lambda: updateWIP(solved, practice),
             "6": exit_program,
         }
 

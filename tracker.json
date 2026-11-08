@@ -1,6 +1,14 @@
 {
-    "217": "Contains Duplicate",
-    "242": "Valid Anagram",
-    "49": "Group Anagrams",
-    "1": "Two Sum"
+    "solved": {
+        "217": "Contains Duplicate",
+        "242": "Valid Anagram",
+        "1": "Two Sum",
+        "49": "Group Anagrams",
+        "347": "Top K Frequent Anagrams"
+    },
+    "practice": {
+        "random": 49,
+        "repractice": null,
+        "current": null
+    }
 }
