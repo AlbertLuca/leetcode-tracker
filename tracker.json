@@ -7,11 +7,8 @@
         "347": "Top K Frequent Anagrams"
     },
     "practice": {
-        "random": 242,
-        "repractice": 347,
-        "current": [
-            271,
-            "Encode and Decode Strings"
-        ]
+        "random": null,
+        "repractice": null,
+        "current": null
     }
 }

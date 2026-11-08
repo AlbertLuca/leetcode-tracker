@@ -166,16 +166,24 @@ def displayWIP(solved, practice):
         time.sleep(2)
         return
 
-    print(f"Random Selected Problem: {practice["random"]}. {solved[practice["random"]]}")
+    if practice["random"] is None:
+        print("No random problem selected!")
+    else:
+        print(f"Random Selected Problem: {practice['random']}. {solved[practice['random']]}")
 
-    repractice_id = list(solved.keys())[-1]
-    repractice_problem = list(solved.values())[-1]
+    repractice_id = practice.get("repractice")
+    repractice_problem = solved.get(repractice_id)
 
-    practice["repractice"] = repractice_id
-    
-    print(f"Repractice: {repractice_id}. {repractice_problem}")
+    if repractice_id is None:
+        print("No repractice problem selected!")
+    else:
+        print(f"Repractice: {repractice_id}. {repractice_problem}")
 
-    current_problem = practice.get("current", None)
+
+    # practice["repractice"] = repractice_id
+
+
+    current_problem = practice.get("current")
 
     if current_problem is None:
         print("No problem currently in progress, must update by selecting " \
