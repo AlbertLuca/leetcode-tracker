@@ -262,8 +262,45 @@ def updateWIP(solved, practice):
         print(f"Completed {ID}. {problem_name}! This problem is now repractice")
         time.sleep(2)
         return
+
+    # resume a paused problem
     elif choice == "3":
-        pass
+        if not practice["paused"]:
+            print("No paused problems to resume!")
+            time.sleep(2)
+            return
+
+        ID = get_problem_id()
+
+        if ID is None:
+            return
+
+        resumed_problem = None
+
+        for problem_id, problem_name in practice["paused"]:
+            if ID == problem_id:
+                resumed_problem = [problem_id, problem_name]
+                break
+
+        if resumed_problem is None:
+            print("Error: Problem not found in paused list!")
+            time.sleep(2)
+            return
+
+        previous_current = practice.get("current")
+
+        if previous_current is not None and previous_current not in practice["paused"]:
+            practice["paused"].append(previous_current)
+
+        practice["paused"].remove(resumed_problem)
+
+        practice["current"] = resumed_problem
+
+        save_problems(solved, practice)
+
+        print(f"Resuming: {resumed_problem[0]}. {resumed_problem[1]}")
+        time.sleep(2)
+        
     elif choice == "4":
         time.sleep(2)
         return
@@ -273,6 +310,7 @@ def updateWIP(solved, practice):
 
 
 """
+
 def exit_program(): Exits the program
 """
 def exit_program():

@@ -5,22 +5,17 @@
         "1": "Two Sum",
         "49": "Group Anagrams",
         "347": "Top K Frequent Anagrams",
-        "271": "Encode and Decode Strings",
-        "29": "cat"
+        "271": "Encode and Decode Strings"
     },
     "practice": {
         "random": 242,
-        "repractice": 29,
-        "current": null,
+        "repractice": null,
+        "current": [
+            34,
+            "dog"
+        ],
         "paused": [
-            [
-                238,
-                "Product of Array Except Self"
-            ],
-            [
-                34,
-                "dog"
-            ]
+
         ]
     }
 }
