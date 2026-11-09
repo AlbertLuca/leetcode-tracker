@@ -179,20 +179,21 @@ def displayWIP(solved, practice):
     else:
         print(f"Repractice: {repractice_id}. {repractice_problem}")
 
-
-    # practice["repractice"] = repractice_id
-
-
     current_problem = practice.get("current")
 
     if current_problem is None:
         print("No problem currently in progress, must update by selecting " \
         "'4. Update Leetcode currently in progress'\n")
-        time.sleep(2)
-        return
+    else:
+        # Remember that json.load() loads tuples to lists
+        print(f"Current: {current_problem[0]}. {current_problem[1]}\n")
 
-    # Remember that json.load() loads tuples to lists
-    print(f"Current: {current_problem[0]}. {current_problem[1]}\n")
+    print("Paused:")
+    if not practice["paused"]:
+        print("No paused problems")
+    else:
+        for ID, problem_name in practice["paused"]:
+            print(f"{ID}. {problem_name}")
 
 
 """
@@ -202,26 +203,74 @@ Then the user tells the program which problem they're currently solving.
 """
 def updateWIP(solved, practice):
 
-    ID = get_problem_id()
+    print("\nUpdate WIP")
+    print("1. Switch to a new problem")
+    print("2. Complete current problem")
+    print("3. Resume a paused problem")
+    print("4. Return to a main menu")
 
-    if ID is None:
+    choice = input("Select an option: ")
+
+    if choice == "1":
+
+        ID = get_problem_id()
+
+        if ID is None:
             return
     
-    problem = input("What is the problem name? ").strip()
+        problem = input("What is the problem name? ").strip()
 
-    # Prevents empty inputs from ruining tracker file
-    if not problem:
-        print("Error: ID and problem cannot be empty!")
+        # Prevents empty inputs from ruining tracker file
+        if not problem:
+            print("Error: Problem name cannot be empty!")
+            time.sleep(2)
+            return
+
+        previous_current = practice.get("current")
+
+        if previous_current is not None and ID == previous_current[0]:
+            print("Error: This problem is already in progress!")
+            return
+
+        # Adds previus_current to practice["paused"] if previous_current is not None and 
+        # The problem isn't already in the paused list
+        if previous_current is not None and previous_current not in practice["paused"]:
+            practice["paused"].append(previous_current)
+
+        practice["current"] = [ID, problem]
+
+        save_problems(solved, practice)
+        
+    elif choice == "2":
+        current = practice.get("current")
+
+        if current is None:
+            print("Error: No current problem to complete!")
+            time.sleep(2)
+            return
+
+        ID, problem_name = current
+
+        solved[ID] = problem_name
+
+        practice["repractice"] = ID
+
+        practice["current"] = None
+
+        save_problems(solved, practice)
+
+        print(f"Completed {ID}. {problem_name}! This problem is now repractice")
         time.sleep(2)
         return
+    elif choice == "3":
+        pass
+    elif choice == "4":
+        time.sleep(2)
+        return
+    else:
+        print("Invalid selection!")
 
-    practice["current"] = (ID, problem)
 
-    save_problems(solved, practice)
-
-    print(f"Updating {ID}. {problem} to WIP")
-    time.sleep(2)
-    return
 
 """
 def exit_program(): Exits the program
@@ -240,8 +289,11 @@ def load_problems():
             practice = data.get("practice", {
                 "random": None,
                 "repractice": None,
-                "current": None
+                "current": None,
+                "paused": []
             })
+
+            practice.setdefault("paused", [])
 
             solved = data.get("solved", {})
 
@@ -256,7 +308,8 @@ def load_problems():
         return {}, {
             "random": None,
             "repractice": None,
-            "current": None
+            "current": None,
+            "paused": []
         }
 
 def save_problems(solved, practice):
