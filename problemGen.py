@@ -196,52 +196,36 @@ def displayWIP(solved, practice):
             print(f"{ID}. {problem_name}")
 
 
-"""
-updateWIP(): Allows the user to tell the program that the user completed the current Leetcode problem in progression.
-The repractice problem is added to the main list of problems and the current problem is moved to the repractice problem.
-Then the user tells the program which problem they're currently solving.
-"""
-def updateWIP(solved, practice):
+def switch_problem(solved, practice):
+    ID = get_problem_id()
 
-    print("\nUpdate WIP")
-    print("1. Switch to a new problem")
-    print("2. Complete current problem")
-    print("3. Resume a paused problem")
-    print("4. Return to a main menu")
+    if ID is None:
+        return
 
-    choice = input("Select an option: ")
+    problem = input("What is the problem name? ").strip()
 
-    if choice == "1":
+    # Prevents empty inputs from ruining tracker file
+    if not problem:
+        print("Error: Problem name cannot be empty!")
+        time.sleep(2)
+        return
 
-        ID = get_problem_id()
+    previous_current = practice.get("current")
 
-        if ID is None:
-            return
-    
-        problem = input("What is the problem name? ").strip()
+    if previous_current is not None and ID == previous_current[0]:
+        print("Error: This problem is already in progress!")
+        return
 
-        # Prevents empty inputs from ruining tracker file
-        if not problem:
-            print("Error: Problem name cannot be empty!")
-            time.sleep(2)
-            return
+    # Adds previus_current to practice["paused"] if previous_current is not None and 
+    # The problem isn't already in the paused list
+    if previous_current is not None and previous_current not in practice["paused"]:
+        practice["paused"].append(previous_current)
 
-        previous_current = practice.get("current")
+    practice["current"] = [ID, problem]
 
-        if previous_current is not None and ID == previous_current[0]:
-            print("Error: This problem is already in progress!")
-            return
+    save_problems(solved, practice)
 
-        # Adds previus_current to practice["paused"] if previous_current is not None and 
-        # The problem isn't already in the paused list
-        if previous_current is not None and previous_current not in practice["paused"]:
-            practice["paused"].append(previous_current)
-
-        practice["current"] = [ID, problem]
-
-        save_problems(solved, practice)
-        
-    elif choice == "2":
+def complete_problem(solved, practice):
         current = practice.get("current")
 
         if current is None:
@@ -263,8 +247,7 @@ def updateWIP(solved, practice):
         time.sleep(2)
         return
 
-    # resume a paused problem
-    elif choice == "3":
+def resume_problem(solved, practice):
         if not practice["paused"]:
             print("No paused problems to resume!")
             time.sleep(2)
@@ -300,6 +283,35 @@ def updateWIP(solved, practice):
 
         print(f"Resuming: {resumed_problem[0]}. {resumed_problem[1]}")
         time.sleep(2)
+        return
+
+"""
+updateWIP(): Allows the user to tell the program that the user completed the current Leetcode problem in progression.
+The repractice problem is added to the main list of problems and the current problem is moved to the repractice problem.
+Then the user tells the program which problem they're currently solving.
+"""
+def updateWIP(solved, practice):
+
+    print("\nUpdate WIP")
+    print("1. Switch to a new problem")
+    print("2. Complete current problem")
+    print("3. Resume a paused problem")
+    print("4. Return to a main menu")
+
+    choice = input("Select an option: ")
+
+    if choice == "1":
+        switch_problem(solved, practice)
+        return
+        
+    elif choice == "2":
+        complete_problem(solved, practice)
+        return
+
+    # resume a paused problem
+    elif choice == "3":
+        resume_problem(solved, practice)
+        return
         
     elif choice == "4":
         time.sleep(2)
