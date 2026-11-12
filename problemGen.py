@@ -226,69 +226,68 @@ def switch_problem(solved, practice):
     save_problems(solved, practice)
 
 def complete_problem(solved, practice):
-        current = practice.get("current")
+    current = practice.get("current")
 
-        if current is None:
-            print("Error: No current problem to complete!")
-            time.sleep(2)
-            return
-
-        ID, problem_name = current
-
-        solved[ID] = problem_name
-
-        practice["repractice"] = ID
-
-        practice["current"] = None
-
-        save_problems(solved, practice)
-
-        print(f"Completed {ID}. {problem_name}! This problem is now repractice")
+    if current is None:
+        print("Error: No current problem to complete!")
         time.sleep(2)
         return
+
+    ID, problem_name = current
+
+    solved[ID] = problem_name
+
+    practice["repractice"] = ID
+
+    practice["current"] = None
+
+    save_problems(solved, practice)
+
+    print(f"Completed {ID}. {problem_name}! This problem is now repractice")
+    time.sleep(2)
+    return
 
 def resume_problem(solved, practice):
-        if not practice["paused"]:
-            print("No paused problems to resume!")
-            time.sleep(2)
-            return
-
-        ID = get_problem_id()
-
-        if ID is None:
-            return
-
-        resumed_problem = None
-
-        for problem_id, problem_name in practice["paused"]:
-            if ID == problem_id:
-                resumed_problem = [problem_id, problem_name]
-                break
-
-        if resumed_problem is None:
-            print("Error: Problem not found in paused list!")
-            time.sleep(2)
-            return
-
-        previous_current = practice.get("current")
-
-        if previous_current is not None and previous_current not in practice["paused"]:
-            practice["paused"].append(previous_current)
-
-        practice["paused"].remove(resumed_problem)
-
-        practice["current"] = resumed_problem
-
-        save_problems(solved, practice)
-
-        print(f"Resuming: {resumed_problem[0]}. {resumed_problem[1]}")
+    if not practice["paused"]:
+        print("No paused problems to resume!")
         time.sleep(2)
         return
 
+    ID = get_problem_id()
+
+    if ID is None:
+        return
+
+    resumed_problem = None
+
+    for problem_id, problem_name in practice["paused"]:
+        if ID == problem_id:
+            resumed_problem = [problem_id, problem_name]
+            break
+
+    if resumed_problem is None:
+        print("Error: Problem not found in paused list!")
+        time.sleep(2)
+        return
+
+    previous_current = practice.get("current")
+
+    if previous_current is not None and previous_current not in practice["paused"]:
+        practice["paused"].append(previous_current)
+
+    practice["paused"].remove(resumed_problem)
+
+    practice["current"] = resumed_problem
+
+    save_problems(solved, practice)
+
+    print(f"Resuming: {resumed_problem[0]}. {resumed_problem[1]}")
+    time.sleep(2)
+    return
+
 """
-updateWIP(): Allows the user to tell the program that the user completed the current Leetcode problem in progression.
-The repractice problem is added to the main list of problems and the current problem is moved to the repractice problem.
-Then the user tells the program which problem they're currently solving.
+Display the WIP submenu and delegate switching,
+completing, or resuming problems to helper functions.
 """
 def updateWIP(solved, practice):
 
